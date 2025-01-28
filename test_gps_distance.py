@@ -1,5 +1,7 @@
 """Unit tests for the GPS distance calculator module using pytest."""
 
+# Note: You need to install pytest first:
+# pip install pytest
 import pytest
 from gps_distance import (
     clean_input,
@@ -12,7 +14,7 @@ from gps_distance import (
 
 # Test data as fixtures
 @pytest.fixture
-def coordinate_sets():
+def test_coordinates():
     """Fixture providing sets of coordinates for testing."""
     return {
         'new_york': (40.7128, -74.0060),
@@ -91,20 +93,18 @@ def test_calculate_haversine_distance(point1, point2, expected, tolerance):
     distance = calculate_haversine_distance(lat1, lon1, lat2, lon2)
     assert abs(distance - expected) <= tolerance
 
-def test_find_closest_points(coordinate_sets):
+def test_find_closest_points(test_coordinates):
     """Test finding closest points between two sets."""
-    set1 = [coordinate_sets['new_york']]
+    set1 = [test_coordinates['new_york']]
     set2 = [
-        coordinate_sets['los_angeles'],
-        coordinate_sets['boston'],
-        coordinate_sets['chicago']
+        test_coordinates['los_angeles'],
+        test_coordinates['boston'],
+        test_coordinates['chicago']
     ]
-    
     matches = find_closest_points(set1, set2)
-    
     # New York should be closest to Boston
     assert len(matches) == 1
-    assert matches[0][2] == coordinate_sets['boston']
+    assert matches[0][2] == test_coordinates['boston']
 
 def test_get_coordinates_decimal_format(monkeypatch):
     """Test coordinate input in decimal format."""
@@ -115,7 +115,6 @@ def test_get_coordinates_decimal_format(monkeypatch):
         "no"   # Don't add more coordinates
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 40.7128
@@ -130,7 +129,6 @@ def test_get_coordinates_degrees_format(monkeypatch):
         "no"   # Don't add more coordinates
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 42.5028
@@ -144,7 +142,6 @@ def test_get_coordinates_multiple_inputs(monkeypatch):
         "no"   # Don't add more coordinates
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 2
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 40.7128
@@ -159,7 +156,6 @@ def test_get_coordinates_invalid_input(monkeypatch):
         "no"   # Don't add more coordinates
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 40.7128
