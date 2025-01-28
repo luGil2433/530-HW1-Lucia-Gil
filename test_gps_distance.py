@@ -1,7 +1,6 @@
+# pylint: disable=import-error, redefined-outer-name
 """Unit tests for the GPS distance calculator module using pytest."""
 
-# Note: You need to install pytest first:
-# pip install pytest
 import pytest
 from gps_distance import (
     clean_input,
@@ -12,7 +11,6 @@ from gps_distance import (
     get_coordinates_from_user
 )
 
-# Test data as fixtures
 @pytest.fixture
 def test_coordinates():
     """Fixture providing sets of coordinates for testing."""
@@ -44,15 +42,17 @@ def test_parse_degrees_to_decimal(input_str, expected):
     """Test conversion from degrees format to decimal."""
     assert pytest.approx(parse_degrees_to_decimal(input_str), rel=1e-8) == expected
 
-@pytest.mark.parametrize("invalid_input", [
-    "abc",          # Non-numeric
-    "12345",       # Wrong length
-    "999999",      # Invalid degrees
-    "",            # Empty string
+@pytest.mark.parametrize("invalid_input,error_msg", [
+    ("abc", "Invalid degrees format"),           # Non-numeric
+    ("12345", "Invalid degrees format"),         # Wrong length
+    ("999999", "Degrees must be between"),       # Invalid degrees
+    ("", "Invalid degrees format"),              # Empty string
+    ("606000", "Minutes must be between"),       # Invalid minutes
+    ("406000", "Seconds must be between"),       # Invalid seconds
 ])
-def test_parse_degrees_invalid_input(invalid_input):
+def test_parse_degrees_invalid_input(invalid_input, error_msg):
     """Test parsing invalid degree formats."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=error_msg):
         parse_degrees_to_decimal(invalid_input)
 
 @pytest.mark.parametrize("lat,lon", [
@@ -102,13 +102,11 @@ def test_find_closest_points(test_coordinates):
         test_coordinates['chicago']
     ]
     matches = find_closest_points(set1, set2)
-    # New York should be closest to Boston
     assert len(matches) == 1
     assert matches[0][2] == test_coordinates['boston']
 
 def test_get_coordinates_decimal_format(monkeypatch):
     """Test coordinate input in decimal format."""
-    # Mock user inputs for decimal format
     inputs = iter([
         "1",  # Choose decimal format
         "40.7128,-74.0060",  # New York coordinates
@@ -122,17 +120,16 @@ def test_get_coordinates_decimal_format(monkeypatch):
 
 def test_get_coordinates_degrees_format(monkeypatch):
     """Test coordinate input in degrees format."""
-    # Mock user inputs for degrees format
     inputs = iter([
         "2",  # Choose degrees format
-        "423010N,0710253W",  # Boston coordinates in degrees
+        "423010N,0710589W",  # Boston coordinates in degrees (42°30'10"N, 71°05'89"W)
         "no"   # Don't add more coordinates
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 42.5028
-    assert pytest.approx(coordinates[0][1], rel=1e-4) == -71.0481
+    assert pytest.approx(coordinates[0][1], rel=1e-4) == -71.0589
 
 def test_get_coordinates_multiple_inputs(monkeypatch):
     """Test entering multiple coordinates."""
