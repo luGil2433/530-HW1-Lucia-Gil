@@ -50,3 +50,10 @@ Do you want to add another input to this array? (yes/no): no
 Point (42.3601, -71.0589) is closest to (37.7749, -122.4194) with a distance of 4306.36 km.
 Point (34.0522, -118.2437) is closest to (37.7749, -122.4194) with a distance of 559.12 km.
 ```
+
+## Facts about Myself
+1. I was born in Spain
+2. I used to sailed competitively
+3. I began coding in 9th grade
+4. I do the NYT sudoku every day
+5. Im very exiceted for Couture fashion week
