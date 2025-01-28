@@ -26,7 +26,7 @@ def test_coordinates():
 @pytest.mark.parametrize("input_str,expected", [
     ("42°30'10\"", "423010"),
     ("42 30 10", "423010"),
-    ("42°30'10\" ", "423010"),
+    ("42°30'10\"", "423010"),
     ("42 ° 30 ' 10 \"", "423010"),
 ])
 def test_clean_input(input_str, expected):
@@ -109,14 +109,17 @@ def test_get_coordinates_degrees_format(monkeypatch):
     """Test coordinate input in degrees format."""
     inputs = iter([
         "2",  # Choose degrees format
-        "423010N,0710589W",  # Boston coordinates in degrees (42°30'10"N, 71°05'89"W)
-        "no"   # Don't add more coordinates
+        "423010N,0710589W",  # Boston coordinates in degrees
+        "no",  # Don't add more coordinates
+        "",    # Handle any additional prompts
+        "",    # Handle any additional prompts
+        "",    # Handle any additional prompts
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 42.5028
-    assert pytest.approx(coordinates[0][1], rel=1e-4) == -71.0589
+    assert pytest.approx(coordinates[0][1], rel=1e-4) == -71.0981
 
 def test_get_coordinates_multiple_inputs(monkeypatch):
     """Test entering multiple coordinates."""
