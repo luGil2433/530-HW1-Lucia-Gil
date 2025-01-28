@@ -130,3 +130,4 @@ def test_get_coordinates_invalid_input(monkeypatch):
     coordinates = get_coordinates_from_user("Enter coordinates: ")
     assert len(coordinates) == 1
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 40.7128
+    
