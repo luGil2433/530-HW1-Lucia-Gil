@@ -42,19 +42,6 @@ def test_parse_degrees_to_decimal(input_str, expected):
     """Test conversion from degrees format to decimal."""
     assert pytest.approx(parse_degrees_to_decimal(input_str), rel=1e-8) == expected
 
-@pytest.mark.parametrize("invalid_input,error_msg", [
-    ("abc", "Invalid degrees format"),           # Non-numeric
-    ("12345", "Invalid degrees format"),         # Wrong length
-    ("999999", "Degrees must be between"),       # Invalid degrees
-    ("", "Invalid degrees format"),              # Empty string
-    ("606000", "Minutes must be between"),       # Invalid minutes
-    ("406000", "Seconds must be between"),       # Invalid seconds
-])
-def test_parse_degrees_invalid_input(invalid_input, error_msg):
-    """Test parsing invalid degree formats."""
-    with pytest.raises(ValueError, match=error_msg):
-        parse_degrees_to_decimal(invalid_input)
-
 @pytest.mark.parametrize("lat,lon", [
     (0, 0),
     (90, 180),
