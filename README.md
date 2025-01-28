@@ -1,3 +1,4 @@
+[![Python application](https://github.com/luGil2433/530-HW1-Lucia-Gil/actions/workflows/python-app.yml/badge.svg)](https://github.com/luGil2433/530-HW1-Lucia-Gil/actions/workflows/python-app.yml)
 # 530-HW1-Lucia-Gil
 
 # Geolocation Matching Application
