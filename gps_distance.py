@@ -18,17 +18,17 @@ def clean_input(input_str):
 def parse_degrees_to_decimal(degrees_str):
     """
     Convert a string in degrees format (ddmmss) to decimal degrees.
-    
+
     Args:
         degrees_str: String in format 'dd°mm'ss"'
-    
+
     Returns:
         float: Decimal degrees
-    
+
     Raises:
         ValueError: If the input format is invalid
     """
-    degrees_str = clean_input(degrees_str)    
+    degrees_str = clean_input(degrees_str)
     # Validate input length
     if len(degrees_str) != 6:
         raise ValueError(
@@ -45,7 +45,7 @@ def parse_degrees_to_decimal(degrees_str):
         if minutes < 0 or minutes >= 60:
             raise ValueError("Minutes must be between 0 and 59")
         if seconds < 0 or seconds >= 60:
-            raise ValueError("Seconds must be between 0 and 59")    
+            raise ValueError("Seconds must be between 0 and 59")
         decimal = degrees + minutes / 60 + seconds / 3600
         return decimal
     except (ValueError, IndexError) as exc:
@@ -56,11 +56,11 @@ def parse_degrees_to_decimal(degrees_str):
 def validate_coordinates(latitude, longitude):
     """
     Validate that latitude and longitude are within valid Earth ranges.
-    
+
     Args:
         latitude: Decimal degrees latitude
         longitude: Decimal degrees longitude
-    
+
     Raises:
         ValueError: If coordinates are outside valid ranges
     """
@@ -77,10 +77,10 @@ def validate_coordinates(latitude, longitude):
 def get_coordinates_from_user(prompt):
     """
     Get multiple coordinates from the user in either 'lat, lon' or 'degrees' format.
-    
+
     Args:
         prompt: Input prompt string
-    
+
     Returns:
         list: List of (latitude, longitude) tuples
     """
@@ -135,13 +135,13 @@ def get_coordinates_from_user(prompt):
 def calculate_haversine_distance(coord1_lat, coord1_lon, coord2_lat, coord2_lon):
     """
     Calculate the distance between two points using the Haversine formula.
-    
+
     Args:
         coord1_lat: Latitude of first coordinate
         coord1_lon: Longitude of first coordinate
         coord2_lat: Latitude of second coordinate
         coord2_lon: Longitude of second coordinate
-    
+
     Returns:
         float: Distance in kilometers
     """
@@ -161,11 +161,11 @@ def calculate_haversine_distance(coord1_lat, coord1_lon, coord2_lat, coord2_lon)
 def find_closest_points(coords_set1, coords_set2):
     """
     Match the closest points between two sets of coordinates.
-    
+
     Args:
         coords_set1: First set of coordinate pairs
         coords_set2: Second set of coordinate pairs
-    
+
     Returns:
         list: List of tuples containing matching points and distances
     """
