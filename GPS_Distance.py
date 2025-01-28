@@ -23,31 +23,32 @@ def parse_degrees_to_decimal(degrees_str):
 
 def get_coordinates_from_user(prompt):
     """
-    Gets coordinates from the user in either 'lat, lon' or 'degrees' format.
+    Gets multiple coordinates from the user in either 'lat, lon' or 'degrees' format.
     """
     coordinates = []
     input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
 
     while True:
         if input_format == "1":
-            print("Example: 42.3601, -71.0589")
+            print("Example: 42.3601,-71.0589; 40.7128,-74.0060")
             user_input = input(prompt)
             try:
-                lat, lon = map(float, user_input.split(","))
-                coordinates.append((lat, lon))
+                # Split multiple inputs by semicolon and process each
+                for coord in user_input.split(";"):
+                    lat, lon = map(float, coord.split(","))
+                    coordinates.append((lat, lon))
             except ValueError:
-                print("Invalid input. Please enter coordinates in the format 'lat, lon'.")
+                print("Invalid input. Please enter coordinates in the format 'lat, lon' separated by semicolons.")
                 continue
         elif input_format == "2":
-            print("Example: 423010N, 0710253W")
+            print("Example: 423010N,0710253W; 404231N,0740059W")
             try:
-                user_input_lat = input("Enter latitude (e.g., 423010N): ").strip()
-                user_input_lon = input("Enter longitude (e.g., 0710253W): ").strip()
-
-                lat = parse_degrees_to_decimal(user_input_lat[:-1]) * (-1 if user_input_lat[-1].upper() == 'S' else 1)
-                lon = parse_degrees_to_decimal(user_input_lon[:-1]) * (-1 if user_input_lon[-1].upper() == 'W' else 1)
-
-                coordinates.append((lat, lon))
+                user_input = input("Enter coordinates (e.g., 423010N,0710253W; 404231N,0740059W): ").strip()
+                for coord in user_input.split(";"):
+                    lat_str, lon_str = map(str.strip, coord.split(","))
+                    lat = parse_degrees_to_decimal(lat_str[:-1]) * (-1 if lat_str[-1].upper() == 'S' else 1)
+                    lon = parse_degrees_to_decimal(lon_str[:-1]) * (-1 if lon_str[-1].upper() == 'W' else 1)
+                    coordinates.append((lat, lon))
             except ValueError as e:
                 print(f"Invalid input: {e}")
                 continue
@@ -56,7 +57,7 @@ def get_coordinates_from_user(prompt):
             input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
             continue
 
-        add_more = input("Do you want to add another input to this array? (yes/no): ").strip().lower()
+        add_more = input("Do you want to add more coordinates? (yes/no): ").strip().lower()
         if add_more != 'yes':
             break
 
@@ -103,10 +104,10 @@ def match_closest_points(array1, array2):
 # Main
 # Get user input for arrays of geolocations
 print("Enter coordinates for array1:")
-array1 = get_coordinates_from_user("Enter lat, lon or degrees: ")
+array1 = get_coordinates_from_user("Enter lat, lon or degrees (multiple coordinates separated by ';'): ")
 
 print("Enter coordinates for array2:")
-array2 = get_coordinates_from_user("Enter lat, lon or degrees: ")
+array2 = get_coordinates_from_user("Enter lat, lon or degrees (multiple coordinates separated by ';'): ")
 
 # Find matches
 matches = match_closest_points(array1, array2)
