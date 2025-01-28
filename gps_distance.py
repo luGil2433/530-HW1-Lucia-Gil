@@ -1,3 +1,10 @@
+"""
+Module for calculating GPS distances.
+
+This module provides functions to calculate distances between
+GPS coordinates using the Haversine formula.
+"""
+
 from math import radians, sin, cos, sqrt, atan2
 
 EARTH_RADIUS_KM = 6371  # Earth's radius in kilometers
