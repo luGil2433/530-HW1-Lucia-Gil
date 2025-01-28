@@ -28,8 +28,7 @@ def parse_degrees_to_decimal(degrees_str):
     Raises:
         ValueError: If the input format is invalid
     """
-    degrees_str = clean_input(degrees_str)
-    
+    degrees_str = clean_input(degrees_str)    
     # Validate input length
     if len(degrees_str) != 6:
         raise ValueError(
@@ -40,15 +39,13 @@ def parse_degrees_to_decimal(degrees_str):
         degrees = int(degrees_str[:2])
         minutes = int(degrees_str[2:4])
         seconds = float(degrees_str[4:])
-        
-        # Validate ranges
+    # Validate ranges
         if degrees < 0 or degrees > 90:
             raise ValueError("Degrees must be between 0 and 90")
         if minutes < 0 or minutes >= 60:
             raise ValueError("Minutes must be between 0 and 59")
         if seconds < 0 or seconds >= 60:
-            raise ValueError("Seconds must be between 0 and 59")
-            
+            raise ValueError("Seconds must be between 0 and 59")    
         decimal = degrees + minutes / 60 + seconds / 3600
         return decimal
     except (ValueError, IndexError) as exc:
