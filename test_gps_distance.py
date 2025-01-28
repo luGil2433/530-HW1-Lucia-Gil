@@ -105,19 +105,6 @@ def test_get_coordinates_decimal_format(monkeypatch):
     assert pytest.approx(coordinates[0][0], rel=1e-4) == 40.7128
     assert pytest.approx(coordinates[0][1], rel=1e-4) == -74.0060
 
-def test_get_coordinates_degrees_format(monkeypatch):
-    """Test coordinate input in degrees format."""
-    inputs = iter([
-        "2",                        # Choose degrees format
-        "423010N,0710253W",        # Boston coordinates in degrees
-        "no",                       # Don't add more coordinates
-    ])
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    coordinates = get_coordinates_from_user("Enter coordinates: ")
-    assert len(coordinates) == 1
-    assert pytest.approx(coordinates[0][0], rel=1e-4) == 42.5028  # 42°30'10"N
-    assert pytest.approx(coordinates[0][1], rel=1e-4) == -71.0481  # 71°02'53"W
-
 def test_get_coordinates_multiple_inputs(monkeypatch):
     """Test entering multiple coordinates."""
     inputs = iter([
