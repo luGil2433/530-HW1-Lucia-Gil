@@ -1,3 +1,4 @@
+# pylint: disable=import-error, redefined-outer-name
 """Unit tests for the GPS distance calculator module using pytest."""
 
 # Note: You need to install pytest first:
@@ -11,7 +12,6 @@ from gps_distance import (
     find_closest_points,
     get_coordinates_from_user
 )
-
 # Test data as fixtures
 @pytest.fixture
 def test_coordinates():
