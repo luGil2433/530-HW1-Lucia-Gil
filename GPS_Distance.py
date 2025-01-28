@@ -21,6 +21,16 @@ def parse_degrees_to_decimal(degrees_str):
         raise ValueError("Invalid degrees format. Use 'dd°mm'ss\"' (e.g., 42°30'10\").")
 
 
+def validate_coordinates(lat, lon):
+    """
+    Validates that latitude and longitude are within valid Earth ranges.
+    """
+    if not (-90 <= lat <= 90):
+        raise ValueError(f"Invalid latitude {lat}. Latitude must be between -90 and 90 degrees.")
+    if not (-180 <= lon <= 180):
+        raise ValueError(f"Invalid longitude {lon}. Longitude must be between -180 and 180 degrees.")
+
+
 def get_coordinates_from_user(prompt):
     """
     Gets multiple coordinates from the user in either 'lat, lon' or 'degrees' format.
@@ -36,9 +46,10 @@ def get_coordinates_from_user(prompt):
                 # Split multiple inputs by semicolon and process each
                 for coord in user_input.split(";"):
                     lat, lon = map(float, coord.split(","))
+                    validate_coordinates(lat, lon)  # Validate lat/lon ranges
                     coordinates.append((lat, lon))
-            except ValueError:
-                print("Invalid input. Please enter coordinates in the format 'lat, lon' separated by semicolons.")
+            except ValueError as e:
+                print(f"Invalid input: {e}")
                 continue
         elif input_format == "2":
             print("Example: 423010N,0710253W; 404231N,0740059W")
@@ -48,6 +59,7 @@ def get_coordinates_from_user(prompt):
                     lat_str, lon_str = map(str.strip, coord.split(","))
                     lat = parse_degrees_to_decimal(lat_str[:-1]) * (-1 if lat_str[-1].upper() == 'S' else 1)
                     lon = parse_degrees_to_decimal(lon_str[:-1]) * (-1 if lon_str[-1].upper() == 'W' else 1)
+                    validate_coordinates(lat, lon)  # Validate lat/lon ranges
                     coordinates.append((lat, lon))
             except ValueError as e:
                 print(f"Invalid input: {e}")
