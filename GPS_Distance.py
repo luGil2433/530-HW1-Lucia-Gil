@@ -1,30 +1,75 @@
 import math
 
 
-    #User Input
+def clean_input(input_str):
+    """
+    Cleans the input string by removing spaces and unexpected characters.
+    """
+    return input_str.replace(" ", "").replace("°", "").replace("'", "").replace('"', "")
+
+
+def parse_degrees_to_decimal(degrees_str):
+    """
+    Converts a string in degrees format (ddmmss) to decimal degrees.
+    """
+    degrees_str = clean_input(degrees_str)
+    try:
+        degrees, minutes, seconds = int(degrees_str[:2]), int(degrees_str[2:4]), float(degrees_str[4:])
+        decimal = degrees + minutes / 60 + seconds / 3600
+        return decimal
+    except (ValueError, IndexError):
+        raise ValueError("Invalid degrees format. Use 'dd°mm'ss\"' (e.g., 42°30'10\").")
+
+
 def get_coordinates_from_user(prompt):
+    """
+    Gets coordinates from the user in either 'lat, lon' or 'degrees' format.
+    """
     coordinates = []
+    input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
+
     while True:
-        user_input = input(prompt)
-        try:
-            lat, lon = map(float, user_input.split(','))
-            coordinates.append((lat, lon))
-        except ValueError:
-            print("Invalid input. Please enter coordinates in the format 'lat, lon'.")
+        if input_format == "1":
+            print("Example: 42.3601, -71.0589")
+            user_input = input(prompt)
+            try:
+                lat, lon = map(float, user_input.split(","))
+                coordinates.append((lat, lon))
+            except ValueError:
+                print("Invalid input. Please enter coordinates in the format 'lat, lon'.")
+                continue
+        elif input_format == "2":
+            print("Example: 423010N, 0710253W")
+            try:
+                user_input_lat = input("Enter latitude (e.g., 423010N): ").strip()
+                user_input_lon = input("Enter longitude (e.g., 0710253W): ").strip()
+
+                lat = parse_degrees_to_decimal(user_input_lat[:-1]) * (-1 if user_input_lat[-1].upper() == 'S' else 1)
+                lon = parse_degrees_to_decimal(user_input_lon[:-1]) * (-1 if user_input_lon[-1].upper() == 'W' else 1)
+
+                coordinates.append((lat, lon))
+            except ValueError as e:
+                print(f"Invalid input: {e}")
+                continue
+        else:
+            print("Invalid option. Please choose '1' or '2'.")
+            input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
             continue
+
         add_more = input("Do you want to add another input to this array? (yes/no): ").strip().lower()
         if add_more != 'yes':
             break
+
     return coordinates
 
 
-    # Haversine formula
-    # Calculate the distance between two points on the Earth
 def haversine(lat1, lon1, lat2, lon2):
-   
+    """
+    Calculates the distance between two points on the Earth using the Haversine formula.
+    """
     from math import radians, sin, cos, sqrt, atan2
 
-    R = 6371  
+    R = 6371  # Earth's radius in km
 
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
 
@@ -37,8 +82,11 @@ def haversine(lat1, lon1, lat2, lon2):
     distance = R * c
     return distance
 
-    #Find the closest point
+
 def match_closest_points(array1, array2):
+    """
+    Matches the closest points between two arrays of geolocations.
+    """
     matches = []
     for lat1, lon1 in array1:
         closest_point = None
@@ -52,15 +100,13 @@ def match_closest_points(array1, array2):
     return matches
 
 
-
-# Main 
-
+# Main
 # Get user input for arrays of geolocations
-print("Enter coordinates for array1 :")
-array1 = get_coordinates_from_user("Enter lat, lon: ")
+print("Enter coordinates for array1:")
+array1 = get_coordinates_from_user("Enter lat, lon or degrees: ")
 
-print("Enter coordinates for array2 :")
-array2 = get_coordinates_from_user("Enter lat, lon: ")
+print("Enter coordinates for array2:")
+array2 = get_coordinates_from_user("Enter lat, lon or degrees: ")
 
 # Find matches
 matches = match_closest_points(array1, array2)
