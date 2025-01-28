@@ -1,72 +1,116 @@
-import math
+"""
+Module for calculating distances between geographic coordinates and finding closest matching points.
+
+This module provides functionality to work with different coordinate formats (decimal and degrees),
+calculate distances using the Haversine formula, and match closest points between two sets of coordinates.
+"""
+
+from math import radians, sin, cos, sqrt, atan2
+
+EARTH_RADIUS_KM = 6371  # Earth's radius in kilometers
 
 
 def clean_input(input_str):
-    """
-    Cleans the input string by removing spaces and unexpected characters.
-    """
+    """Clean the input string by removing spaces and unexpected characters."""
     return input_str.replace(" ", "").replace("°", "").replace("'", "").replace('"', "")
 
 
 def parse_degrees_to_decimal(degrees_str):
     """
-    Converts a string in degrees format (ddmmss) to decimal degrees.
+    Convert a string in degrees format (ddmmss) to decimal degrees.
+    
+    Args:
+        degrees_str: String in format 'dd°mm'ss"'
+    
+    Returns:
+        float: Decimal degrees
+    
+    Raises:
+        ValueError: If the input format is invalid
     """
     degrees_str = clean_input(degrees_str)
     try:
-        degrees, minutes, seconds = int(degrees_str[:2]), int(degrees_str[2:4]), float(degrees_str[4:])
+        degrees = int(degrees_str[:2])
+        minutes = int(degrees_str[2:4])
+        seconds = float(degrees_str[4:])
         decimal = degrees + minutes / 60 + seconds / 3600
         return decimal
-    except (ValueError, IndexError):
-        raise ValueError("Invalid degrees format. Use 'dd°mm'ss\"' (e.g., 42°30'10\").")
+    except (ValueError, IndexError) as exc:
+        raise ValueError(
+            "Invalid degrees format. Use 'dd°mm'ss\"' (e.g., 42°30'10\")"
+        ) from exc
 
 
-def validate_coordinates(lat, lon):
+def validate_coordinates(latitude, longitude):
     """
-    Validates that latitude and longitude are within valid Earth ranges.
+    Validate that latitude and longitude are within valid Earth ranges.
+    
+    Args:
+        latitude: Decimal degrees latitude
+        longitude: Decimal degrees longitude
+    
+    Raises:
+        ValueError: If coordinates are outside valid ranges
     """
-    if not (-90 <= lat <= 90):
-        raise ValueError(f"Invalid latitude {lat}. Latitude must be between -90 and 90 degrees.")
-    if not (-180 <= lon <= 180):
-        raise ValueError(f"Invalid longitude {lon}. Longitude must be between -180 and 180 degrees.")
+    if not -90 <= latitude <= 90:
+        raise ValueError(
+            f"Invalid latitude {latitude}. Must be between -90 and 90 degrees."
+        )
+    if not -180 <= longitude <= 180:
+        raise ValueError(
+            f"Invalid longitude {longitude}. Must be between -180 and 180 degrees."
+        )
 
 
 def get_coordinates_from_user(prompt):
     """
-    Gets multiple coordinates from the user in either 'lat, lon' or 'degrees' format.
+    Get multiple coordinates from the user in either 'lat, lon' or 'degrees' format.
+    
+    Args:
+        prompt: Input prompt string
+    
+    Returns:
+        list: List of (latitude, longitude) tuples
     """
     coordinates = []
-    input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
+    input_format = input(
+        "Choose input format ('1' for lat, lon or '2' for degrees): "
+    ).strip()
 
     while True:
         if input_format == "1":
             print("Example: 42.3601,-71.0589; 40.7128,-74.0060")
-            user_input = input(prompt)
+            coord_input = input(prompt)
             try:
-                # Split multiple inputs by semicolon and process each
-                for coord in user_input.split(";"):
+                for coord in coord_input.split(";"):
                     lat, lon = map(float, coord.split(","))
-                    validate_coordinates(lat, lon)  # Validate lat/lon ranges
+                    validate_coordinates(lat, lon)
                     coordinates.append((lat, lon))
-            except ValueError as e:
-                print(f"Invalid input: {e}")
+            except ValueError as exc:
+                print(f"Invalid input: {exc}")
                 continue
         elif input_format == "2":
             print("Example: 423010N,0710253W; 404231N,0740059W")
             try:
-                user_input = input("Enter coordinates (e.g., 423010N,0710253W; 404231N,0740059W): ").strip()
-                for coord in user_input.split(";"):
+                coord_input = input(
+                    "Enter coordinates (e.g., 423010N,0710253W; 404231N,0740059W): "
+                ).strip()
+                for coord in coord_input.split(";"):
                     lat_str, lon_str = map(str.strip, coord.split(","))
-                    lat = parse_degrees_to_decimal(lat_str[:-1]) * (-1 if lat_str[-1].upper() == 'S' else 1)
-                    lon = parse_degrees_to_decimal(lon_str[:-1]) * (-1 if lon_str[-1].upper() == 'W' else 1)
-                    validate_coordinates(lat, lon)  # Validate lat/lon ranges
+                    lat = parse_degrees_to_decimal(lat_str[:-1])
+                    lat *= -1 if lat_str[-1].upper() == 'S' else 1
+                    lon = parse_degrees_to_decimal(lon_str[:-1])
+                    lon *= -1 if lon_str[-1].upper() == 'W' else 1
+                    validate_coordinates(lat, lon)
                     coordinates.append((lat, lon))
-            except ValueError as e:
-                print(f"Invalid input: {e}")
+            except ValueError as exc:
+                print(f"Invalid input: {exc}")
                 continue
         else:
             print("Invalid option. Please choose '1' or '2'.")
-            input_format = input("Choose input format ('1' for lat, lon or '2' for degrees): ").strip()
+            input_format = input(
+                "Choose input format ('1' for lat, lon or '2' for degrees): "
+            ).strip()
             continue
 
         add_more = input("Do you want to add more coordinates? (yes/no): ").strip().lower()
@@ -76,57 +120,80 @@ def get_coordinates_from_user(prompt):
     return coordinates
 
 
-def haversine(lat1, lon1, lat2, lon2):
+def calculate_haversine_distance(coord1_lat, coord1_lon, coord2_lat, coord2_lon):
     """
-    Calculates the distance between two points on the Earth using the Haversine formula.
+    Calculate the distance between two points using the Haversine formula.
+    
+    Args:
+        coord1_lat: Latitude of first coordinate
+        coord1_lon: Longitude of first coordinate
+        coord2_lat: Latitude of second coordinate
+        coord2_lon: Longitude of second coordinate
+    
+    Returns:
+        float: Distance in kilometers
     """
-    from math import radians, sin, cos, sqrt, atan2
-
-    R = 6371  # Earth's radius in km
-
-    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    lat1, lon1, lat2, lon2 = map(
+        radians, [coord1_lat, coord1_lon, coord2_lat, coord2_lon]
+    )
 
     dlat = lat2 - lat1
     dlon = lon2 - lon1
 
-    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    temp = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    distance = 2 * atan2(sqrt(temp), sqrt(1 - temp))
 
-    distance = R * c
-    return distance
+    return EARTH_RADIUS_KM * distance
 
 
-def match_closest_points(array1, array2):
+def find_closest_points(coords_set1, coords_set2):
     """
-    Matches the closest points between two arrays of geolocations.
+    Match the closest points between two sets of coordinates.
+    
+    Args:
+        coords_set1: First set of coordinate pairs
+        coords_set2: Second set of coordinate pairs
+    
+    Returns:
+        list: List of tuples containing matching points and distances
     """
-    matches = []
-    for lat1, lon1 in array1:
+    closest_matches = []
+    for coord1_lat, coord1_lon in coords_set1:
         closest_point = None
-        min_distance = float('inf')
-        for lat2, lon2 in array2:
-            distance = haversine(lat1, lon1, lat2, lon2)
-            if distance < min_distance:
-                min_distance = distance
-                closest_point = (lat2, lon2)
-        matches.append((lat1, lon1, closest_point, min_distance))
-    return matches
+        shortest_distance = float('inf')
+        for coord2_lat, coord2_lon in coords_set2:
+            distance = calculate_haversine_distance(
+                coord1_lat, coord1_lon, coord2_lat, coord2_lon
+            )
+            if distance < shortest_distance:
+                shortest_distance = distance
+                closest_point = (coord2_lat, coord2_lon)
+        closest_matches.append(
+            (coord1_lat, coord1_lon, closest_point, shortest_distance)
+        )
+    return closest_matches
 
 
-# Main
-# Get user input for arrays of geolocations
-print("Enter coordinates for array1:")
-array1 = get_coordinates_from_user("Enter lat, lon or degrees (multiple coordinates separated by ';'): ")
+def main():
+    """Main function to run the coordinate matching program."""
+    print("Enter coordinates for first set:")
+    first_set = get_coordinates_from_user(
+        "Enter lat, lon or degrees (multiple coordinates separated by ';'): "
+    )
 
-print("Enter coordinates for array2:")
-array2 = get_coordinates_from_user("Enter lat, lon or degrees (multiple coordinates separated by ';'): ")
+    print("Enter coordinates for second set:")
+    second_set = get_coordinates_from_user(
+        "Enter lat, lon or degrees (multiple coordinates separated by ';'): "
+    )
 
-# Find matches
-matches = match_closest_points(array1, array2)
+    closest_matches = find_closest_points(first_set, second_set)
 
-# Display results
-for origin, match in zip(array1, matches):
-    lat1, lon1 = origin
-    closest_lat, closest_lon = match[2]
-    min_distance = match[3]
-    print(f"Point {origin} is closest to {match[2]} with a distance of {min_distance:.2f} km.")
+    for origin, match_data in zip(first_set, closest_matches):
+        print(
+            f"Point {origin} is closest to {match_data[2]} "
+            f"with a distance of {match_data[3]:.2f} km."
+        )
+
+
+if __name__ == "__main__":
+    main()
