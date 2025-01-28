@@ -1,10 +1,3 @@
-"""
-Module for calculating distances between geographic coordinates and finding closest matching points.
-
-This module provides functionality to work with different coordinate formats (decimal and degrees),
-calculate distances using the Haversine formula, and match closest points between two sets of coordinates.
-"""
-
 from math import radians, sin, cos, sqrt, atan2
 
 EARTH_RADIUS_KM = 6371  # Earth's radius in kilometers
