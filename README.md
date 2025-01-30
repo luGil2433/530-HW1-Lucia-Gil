@@ -68,6 +68,10 @@ Point (34.0522, -118.2437) is closest to (37.0458, -122.2520) with a distance of
 ## Coverage Test Report
 ![Alt text](.github/workflows/coverageReport.png)
 
+
+## CPU Test Report
+![Alt text](.github/workflows/CPU_Test.png)
+
 ## Fun Facts About Me
 
 1. I was born in Spain.
