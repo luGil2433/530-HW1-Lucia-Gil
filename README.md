@@ -65,6 +65,9 @@ Point (42.3601, -71.0589) is closest to (40.4231, -74.0059) with a distance of 2
 Point (34.0522, -118.2437) is closest to (37.0458, -122.2520) with a distance of 559.12 km.
 ```
 
+## Coverage Test Report
+![Alt text](.github/workflows/coverageReport.png)
+
 ## Fun Facts About Me
 
 1. I was born in Spain.
